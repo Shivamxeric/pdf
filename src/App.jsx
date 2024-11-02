@@ -1,23 +1,29 @@
 import React, { useState } from 'react';
-import { Client, Storage } from 'appwrite';
+import { Client, Storage, Account } from 'appwrite';
 import axios from 'axios';
 import './App.css';
+// App.jsx
 
-// Initialize Appwrite Client
+
 const client = new Client()
+client
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
   .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
 
 const storage = new Storage(client);
+const account = new Account(client);
 
 function App() {
   const [image, setImage] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [popup, setPopup] = useState(false);
+  const [authVisible, setAuthVisible] = useState(false);
+  const [authType, setAuthType] = useState('login'); // 'login' or 'signup'
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
-  };
+  const handleImageChange = (e) => setImage(e.target.files[0]);
 
   const shortenUrl = async (longUrl) => {
     try {
@@ -34,16 +40,12 @@ function App() {
       return response.data.link;
     } catch (error) {
       console.error('Error shortening URL:', error);
-      return longUrl; // Fallback to original URL
+      return longUrl;
     }
   };
 
   const handleUpload = async () => {
-    if (!image) {
-      alert('Please select an image to upload');
-      return;
-    }
-
+    if (!image) return alert('Please select an image to upload');
     setLoading(true);
 
     try {
@@ -52,8 +54,9 @@ function App() {
         'unique()',
         image
       );
-
-      const longUrl = new URL(storage.getFileView(import.meta.env.VITE_APPWRITE_BUCKET_ID, response.$id)).href;
+      const longUrl = new URL(
+        storage.getFileView(import.meta.env.VITE_APPWRITE_BUCKET_ID, response.$id)
+      ).href;
       const shortUrl = await shortenUrl(longUrl);
       setImageUrl(shortUrl);
       alert('Image uploaded successfully!');
@@ -69,24 +72,48 @@ function App() {
     if (imageUrl) {
       navigator.clipboard.writeText(imageUrl)
         .then(() => {
-          alert('URL copied to clipboard!');
+          setPopup(true);
+          setTimeout(() => setPopup(false), 3000);
         })
-        .catch((err) => {
-          console.error('Failed to copy URL:', err);
-        });
+        .catch((err) => console.error('Failed to copy URL:', err));
     }
   };
 
-  const displayUrl = imageUrl ? imageUrl.slice(0, imageUrl.length / 4) + '...' : '';
+  const toggleAuth = (type) => {
+    setAuthType(type);
+    setAuthVisible(true);
+    setEmail(''); // Clear email and password
+    setPassword('');
+  };
+
+  const handleAuth = async () => {
+    try {
+      if (authType === 'login') {
+        await account.createSession(email, password);
+        alert('Login successful!');
+      } else {
+        await account.create(email, password);
+        await account.createSession(email, password);
+        alert('Signup successful! You are now logged in.');
+      }
+      setAuthVisible(false); // Close modal on success
+    } catch (error) {
+      console.error('Authentication failed:', error);
+      alert('Error during authentication.');
+    }
+  };
 
   return (
     <div className="app">
       <header className="header">
         <h1>Image Upload App</h1>
+        <div>
+          <button onClick={() => toggleAuth('login')}>Login</button>
+          <button onClick={() => toggleAuth('signup')}>Sign Up</button>
+        </div>
       </header>
 
       <main className="main-content">
-        <h2>Upload Your Image</h2>
         <div className="upload-container">
           <input type="file" accept="image/*" onChange={handleImageChange} />
           <button onClick={handleUpload} disabled={loading}>
@@ -96,20 +123,45 @@ function App() {
 
         {imageUrl && (
           <div className="uploaded-image">
-            <h3>Uploaded Image:</h3>
-            <img src={imageUrl} alt="Uploaded" className="image-preview" />
-            <p>
-              <strong>Shortened URL:</strong>{' '}
-              <span>{displayUrl}</span>
+            <h3>Your Image URL:</h3>
+            <div className="url-section">
+              <span>{imageUrl}</span>
               <button onClick={copyToClipboard}>Copy URL</button>
-            </p>
+            </div>
+            {/* Thumbnail display */}
+            <div className="thumbnail">
+              <img src={imageUrl} alt="Uploaded" />
+            </div>
           </div>
         )}
       </main>
 
       <footer className="footer">
-        <p>&copy; 2024 MyBrand. All rights reserved.</p>
+        <p>&copy; 2024 Shivam Jha. All rights reserved.</p>
       </footer>
+
+      {popup && <div className="popup">URL copied to clipboard!</div>}
+
+      {authVisible && (
+        <div className="auth-container">
+          <h2>{authType === 'login' ? 'Login' : 'Sign Up'}</h2>
+          <input 
+            type="email" 
+            placeholder="Email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+          />
+          <input 
+            type="password" 
+            placeholder="Password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+          />
+          <button onClick={handleAuth}>
+            {authType === 'login' ? 'Login' : 'Sign Up'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,192 @@
+/* General Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Header */
+.header {
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Main Content */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 1300px;
+  height: 450px;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+/* Upload Container */
+.upload-container {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* File Input */
+.upload-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px dashed #4CAF50;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #333;
+  transition: border-color 0.3s;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.upload-input:hover {
+  border-color: #45a049;
+}
+
+/* Compress Button */
+button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-top: 10px;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+/* Download Button */
+.download-button {
+  position: relative;
+  overflow: hidden;
+  background-color: #4CAF50;
+  text-decoration: none;
+  padding: 12px 20px;
+  display: inline-block;
+  color: white;
+  border-radius: 8px;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  text-align: center;
+}
+
+.download-button:hover {
+  background-color: #45a049;
+}
+
+.download-button::after {
+  content: "↓";
+  position: absolute;
+  top: 0;
+  right: -40px;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.3);
+  animation: downloadAnimation 2s linear infinite;
+}
+#im{
+  height: 100px;
+}
+@keyframes downloadAnimation {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* Compressed Image Preview */
+.compressed-image-preview {
+  margin-top: 20px;
+  max-width: 100%;
+  width: auto;
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+}
+
+/* Footer */
+.footer {
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  font-size: 0.9rem;
+  width: 100%;
+  margin-top: auto;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .main-content {
+    width: 90%; /* Adjusts width to fit within the screen */
+    height: auto; /* Allows for flexible height on smaller screens */
+  }
+  
+  .header {
+    font-size: 1.5rem;
+  }
+
+  button, .upload-input, .download-button {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    width: 300px; /* Further adjusts width for extra-small screens */
+    padding: 15px;
+height: 450px;
+  }
+.upload-container{
+  width: 300px;
+}
+  .header {
+    font-size: 1.2rem;
+    padding: 15px 0;
+  }
+  .footer{
+    margin-top: 100px;
+
+  }
+
+  button, .upload-input, .download-button {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+}
